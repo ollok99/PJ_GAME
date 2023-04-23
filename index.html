@@ -1,0 +1,324 @@
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>두더지 잡기</title>
+        <style>
+            .cell {
+                display: inline-block;
+                position: relative;
+                width: 200px;
+                height: 200px;
+                background: "yellow";
+                overflow: hidden;
+            }
+            .gopher,
+            .bomb {
+                width: 200px;
+                height: 200px;
+                bottom: 0;
+                position: absolute;
+                transition: bottom 1s;
+            }
+            .gopher {
+                background: url("./images/gopher.png") center center no-repeat;
+                background-size: 200px 200px;
+            }
+            .dead {
+                background: url("./images/dead_gopher.png") center center no-repeat;
+                background-size: 200px 200px;
+            }
+            .bomb {
+                background: url("./images/bomb.png") center center no-repeat;
+                background-size: 200px 200px;
+            }
+            .boom {
+                background: url("./images/explode.png") center center no-repeat;
+                background-size: 200px 200px;
+            }
+            .hidden {
+                bottom: -200px;
+            }
+            .hole {
+                width: 200px;
+                height: 150px;
+                position: absolute;
+                bottom: 0;
+                background: url("./images/mole-hole.png") center center no-repeat;
+                background-size: 200px 150px;
+            }
+            .hole-front {
+                width: 200px;
+                height: 30px;
+                position: absolute;
+                bottom: 0;
+                background: url("./images/mole-hole-front.png") center center no-repeat;
+                background-size: 200px 30px;
+            }
+            body {
+                display: flex;
+                flex-direction: column;
+
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            #start {
+                font-weight: bold;
+                background-color: rgb(0, 217, 255);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-size: 16px;
+
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin: 10px;
+            }
+
+            #start:hover {
+                font-weight: bold;
+                background-color: rgb(47, 168, 184);
+                cursor: pointer;
+            }
+            .Count {
+                display: flex;align-items: center;
+                justify-content: space-around;
+                width: 70%;
+                margin: 0 auto;
+                font-weight: bold;
+}
+
+
+            /* Style the timer */
+            #timer {
+                font-size: 24px;
+                font-weight: bold;
+                color: #f00;
+            }
+
+            /* Style the score */
+            #score {
+                font-size: 24px;
+                font-weight: bold;
+                color: rgb(0, 247, 255);
+            }
+
+            /* Style the life */
+            #life {
+                font-size: 24px;
+                font-weight: bold;
+                color: rgb(0, 255, 0);
+            }
+            @keyframes shake {
+                0% {
+                    transform: translateX(0);
+                }
+                50% {
+                    transform: translateX(-2px, 2px);
+                }
+                100% {
+                    transform: translateX(5px);
+                }
+            }
+
+            .clock {
+                display: flex;
+                /* width: 50px; */
+                align-items: center;
+            }
+            .clock img {
+                width: 50px;
+                height: auto;
+            }
+            .shake-animation {
+                animation-name: shake;
+                animation-duration: 0.2s;
+                animation-iteration-count: infinite;
+            }
+        </style>
+    </head>
+    <body>
+        <body>
+            <div class="Count">
+              <div class="clock">
+                <img id="clock-img" src="./images/bgremoveclock.png" />&nbsp<span id="timer">8&nbsp;</span>초
+              </div>
+              <div>Score : &nbsp<span id="score">0&nbsp</span>점</div>
+              <div>남은 목숨 : &nbsp<span id="life">3&nbsp</span>개</div>
+              <div><button id="start">Start</button></div>
+            </div>
+
+        <div id="game">
+            <div class="row">
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+                <div class="cell">
+                    <div class="hole"></div>
+                    <div class="gopher hidden"></div>
+                    <div class="bomb hidden"></div>
+                    <div class="hole-front"></div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const clockImg = document.getElementById("clock-img");
+            const startBtn = document.getElementById("start");
+            startBtn.addEventListener("click", () => {
+                clockImg.classList.add("shake-animation");
+            });
+            const $timer = document.querySelector("#timer");
+            const $score = document.querySelector("#score");
+            const $game = document.querySelector("#game");
+            const $life = document.querySelector("#life");
+            const $start = document.querySelector("#start");
+            const $$cells = document.querySelectorAll(".cell");
+
+            const holes = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+            let started = false;
+            let score = 0;
+            let time = 60;
+            let life = 3;
+            let timerId;
+            let tickId;
+
+            $start.addEventListener("click", () => {
+                if (started) return; // 이미 시작했으면 무시
+                started = true;
+                console.log("시작");
+                timerId = setInterval(() => {
+                    time = (time * 10 - 1) / 10; // 소수점 계산 시 문제있음
+                    $timer.textContent = time;
+                    if (time === 0) {
+                        clearInterval(timerId);
+                        clearInterval(tickId);
+                        setTimeout(() => {
+                            alert(`게임 오버! 점수는${score}점`);
+                        }, 50);
+                    }
+                }, 100);
+                tickId = setInterval(tick, 1000);
+                tick();
+            });
+
+            // 화면: hidden
+            // 호출스택:
+            // 백그라운드 : interval(tick, 1000)
+            // 태스크큐:
+            let gopherPercent = 0.3;
+            let bombPercent = 0.5;
+            function tick() {
+                holes.forEach((hole, index) => {
+                    if (hole) return; // 무언가 일어나고 있으면 return
+                    const randomValue = Math.random();
+                    if (randomValue < gopherPercent) {
+                        const $gopher = $$cells[index].querySelector(".gopher");
+                        holes[index] = setTimeout(() => {
+                            // 1초 뒤에 사라짐
+                            $gopher.classList.add("hidden");
+                            holes[index] = 0;
+                        }, 1000);
+                        $gopher.classList.remove("hidden");
+                    } else if (randomValue < bombPercent) {
+                        const $bomb = $$cells[index].querySelector(".bomb");
+                        holes[index] = setTimeout(() => {
+                            // 1초 뒤에 사라짐
+                            $bomb.classList.add("hidden");
+                            holes[index] = 0;
+                        }, 1000);
+                        $bomb.classList.remove("hidden");
+                    }
+                });
+            }
+
+            $$cells.forEach(($cell, index) => {
+                $cell
+                    .querySelector(".gopher")
+                    .addEventListener("click", (event) => {
+                        if (!event.target.classList.contains("dead")) {
+                            score += 1;
+                            $score.textContent = score;
+                        }
+                        event.target.classList.add("dead");
+                        event.target.classList.add("hidden");
+                        clearTimeout(holes[index]); // 기존 내려가는 타이머 제거
+                        setTimeout(() => {
+                            holes[index] = 0;
+                            event.target.classList.remove("dead");
+                        }, 1000);
+                    });
+                $cell
+                    .querySelector(".bomb")
+                    .addEventListener("click", (event) => {
+                        event.target.classList.add("boom");
+                        event.target.classList.add("hidden");
+                        clearTimeout(holes[index]); // 기존 내려가는 타이머 제거
+                        setTimeout(() => {
+                            holes[index] = 0;
+                            event.target.classList.remove("boom");
+                        }, 1000);
+                        life--;
+                        $life.textContent = life;
+
+                        if (life === 0) {
+                            clearInterval(timerId);
+                            clearInterval(tickId);
+                            setTimeout(() => {
+                                alert(`게임 오버! 점수는${score}점`);
+                            }, 50);
+                        }
+                    });
+            });
+        </script>
+    </body>
+</html>
